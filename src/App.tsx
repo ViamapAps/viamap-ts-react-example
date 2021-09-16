@@ -21,7 +21,7 @@ export const Context = React.createContext<{
   dispatch: () => undefined,
 });
 
-enum ActionType { Recolor, Click, ToggleShowOrtoPhoto };
+enum ActionType { Recolor, Click, OrtoPhoto };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
@@ -32,8 +32,8 @@ function reducer(state: State, action: Action): State {
   switch (action.actionType) {
     case ActionType.Recolor:
       return { ...state, color: action.payLoad };
-      case ActionType.ToggleShowOrtoPhoto:
-        return { ...state, showOrtoPhoto: !state.showOrtoPhoto };
+      case ActionType.OrtoPhoto:
+        return { ...state, showOrtoPhoto: action.payLoad };
       case ActionType.Click:
       return { ...state, clicks: state.clicks + 1 }
     default:
@@ -64,7 +64,7 @@ const OtherComponent = () => {
       <h1>Viamap React Example</h1>
       <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
       {' '}
-      <button onClick={(e) => dispatch({ actionType: ActionType.ToggleShowOrtoPhoto})}>Toggle satelite photo</button>
+      <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto})}>Toggle satelite photo</button>
       <div>Map clicked {state.clicks} times</div>
     </>
   );
