@@ -1,20 +1,31 @@
 import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { vms, mapboxglx } from 'viamapstrap';
+import { vms } from 'viamapstrap';
 
+// STATE EXAMPLE
 type State = {
   position?: any;
   zoom?: any;
   color: string;
   clicks: number;
 }
+
+let initialState: State = { color: "green", "clicks": 0 };
+export const Context = React.createContext<{
+  state: State;
+  dispatch: React.Dispatch<Action>;
+}>({
+  state: initialState,
+  dispatch: () => undefined,
+});
+
 enum ActionType { Move, Zoom, Recolor, Click };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
 }
-let initialState: State = { color: "green", "clicks": 0 };
+
+// SIMPLE REDUCER
 function reducer(state: State, action: Action): State {
   switch (action.actionType) {
     case ActionType.Move:
@@ -29,15 +40,9 @@ function reducer(state: State, action: Action): State {
       return state;
   }
 }
-export const Context = React.createContext<{
-  state: State;
-  dispatch: React.Dispatch<Action>;
-}>({
-  state: initialState,
-  dispatch: () => undefined,
-});
 
-function App() {
+// MAIN APP COMPONENT
+const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
@@ -45,23 +50,33 @@ function App() {
       <div className="App">
         <Context.Provider value={{ state, dispatch }}>
           <OtherComponent />
-          <Map />
+          <MapComponent />
         </Context.Provider>
       </div>
     </>
   );
 }
 
-const Map = () => {
+const OtherComponent = () => {
   const { state, dispatch } = useContext(Context);
-  const mapref = useRef(null);
+  return (
+    <>
+      <h1>Viamap React Example</h1>
+      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Change dot color</button>
+      <div>Map clicked {state.clicks} times</div>
+    </>
+  );
+}
+
+const MapComponent = () => {
+  const { state, dispatch } = useContext(Context);
+  const [ map, setMap ] = useState(null);
   const mapContainer = useRef(null);
 
+  // ==============================================================
+  // MAP INITIALIZATION
+  // ==============================================================
   useEffect(() => {
-    // ==============================================================
-    // MAP INITIALIZATION
-    // ==============================================================
-
     let customer = "charlietango_trial";
     let token = "eyJkcGZ4IjogImNoYXJsaWV0YW5nb190cmlhbCIsICJyZWYiOiAiMjEwOTA5IiwgInBhciI6ICIiLCAiZXhwIjogMTYzNTgxMTE5OSwgInByaXZzIjogInIxWjByMEYwazZCdFdxUWNPVXlrQi95NlNVcEp2MlFiZ3lYZXRxNEhZNFhPLzNZclcwK0s5dz09In0.gqV466WO3GqdhsHU0PSzFV4xpxOMJMd9MHUxJ+lh7riZvREht/dG1PN0tlx+rzcDaqZRK5CD4yCOiUe393XOYg";
     let props = {
@@ -69,7 +84,7 @@ const Map = () => {
       // container: 'map',
       container: mapContainer.current,
       zoom: 11,
-      pitch: 0,
+      pitch:  0,
       bearing: 0,
       center: [10.4153,
         55.401046],
@@ -77,9 +92,8 @@ const Map = () => {
     };
     vms.initmap(props)
       .then((map: any) => {
-        mapref.current = map;
-        let x = vms.mapboxgl();
-        map.addControl(new x.NavigationControl({ visualizePitch: true }), 'top-left');
+        setMap(map);
+        map.addControl(new (vms.mapboxgl()).NavigationControl({ visualizePitch: true }), 'top-left');
         map.setLayoutProperty('orthophoto', 'visibility', 'none');
         map.on('click', (e: any) => { dispatch({ actionType: ActionType.Click }); })
 
@@ -108,11 +122,11 @@ const Map = () => {
             }
           ]
         };
-        mapref.current.addSource("exampledatasource", {
+        map.addSource("exampledatasource", {
           type: "geojson",
           data: myData
         });
-        mapref.current.addLayer({
+        map.addLayer({
           id: 'exampledatalayerdot',
           type: 'circle',
           source: 'exampledatasource',
@@ -123,12 +137,17 @@ const Map = () => {
         });
 
       });
-  }, []); // nun only once
+      /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []); // Run only once
 
+  // ==============================================================
+  // EXAMPLE HANDLING OF EVENT/STATE CHANGE
+  // ==============================================================
   useEffect(() => {
-    if (!mapref.current) return;
-    mapref.current.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
-  }, [state.color, mapref.current]);
+    if (map) {
+      map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
+    }
+  }, [state.color, map]); // Run when map becomes available or color is changed
 
   return (
     <>
@@ -136,24 +155,10 @@ const Map = () => {
       <div>
         <div ref={mapContainer} style={{ width: "100%", height: "400px" }} className="map-container" />
       </div>
-      {/* <div style={{ position: "relative", top:"10px"}}>
-      <div style={{ position: "absolute", top:"10px", width:"100%"}}>
-        <div id={'map'} style={{ verticalAlign:"bottom", textAlign:"left", position: "static", top: 0, left: 0, width: "100%", height: "500" }}></div>
-      </div>
-      </div> */}
     </>
   );
 }
 
-const OtherComponent = () => {
-  const { state, dispatch } = useContext(Context);
-  return (
-    <>
-      <h1>Viamap React Example</h1>
-      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Change dot color</button>
-      <div>Map clicked {state.clicks} times</div>
-    </>
-  );
-}
+
 
 export default App;
