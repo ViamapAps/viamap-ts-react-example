@@ -7,13 +7,12 @@ declare var mapboxgl: any;
 
 // STATE EXAMPLE
 type State = {
-  position?: any;
-  zoom?: any;
   color: string;
   clicks: number;
+  showOrtoPhoto: boolean;
 }
 
-let initialState: State = { color: "green", "clicks": 0 };
+let initialState: State = { color: "green", "clicks": 0, "showOrtoPhoto":false };
 export const Context = React.createContext<{
   state: State;
   dispatch: React.Dispatch<Action>;
@@ -22,7 +21,7 @@ export const Context = React.createContext<{
   dispatch: () => undefined,
 });
 
-enum ActionType { Move, Zoom, Recolor, Click };
+enum ActionType { Recolor, Click, ToggleShowOrtoPhoto };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
@@ -31,13 +30,11 @@ type Action = {
 // SIMPLE REDUCER
 function reducer(state: State, action: Action): State {
   switch (action.actionType) {
-    case ActionType.Move:
-      return { ...state, position: action.payLoad };
-    case ActionType.Zoom:
-      return { ...state, zoom: action.payLoad };
     case ActionType.Recolor:
       return { ...state, color: action.payLoad };
-    case ActionType.Click:
+      case ActionType.ToggleShowOrtoPhoto:
+        return { ...state, showOrtoPhoto: !state.showOrtoPhoto };
+      case ActionType.Click:
       return { ...state, clicks: state.clicks + 1 }
     default:
       return state;
@@ -65,7 +62,9 @@ const OtherComponent = () => {
   return (
     <>
       <h1>Viamap React Example</h1>
-      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Change dot color</button>
+      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
+      {' '}
+      <button onClick={(e) => dispatch({ actionType: ActionType.ToggleShowOrtoPhoto})}>Toggle satelite photo</button>
       <div>Map clicked {state.clicks} times</div>
     </>
   );
@@ -146,11 +145,15 @@ const MapComponent = () => {
   }, []); // Run only once
 
   // ==============================================================
-  // EXAMPLE HANDLING OF EVENT/STATE CHANGE
+  // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   // ==============================================================
   useEffect(() => {
     map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
   }, [state.color, map]); // Run when map becomes available or color is changed
+
+  useEffect(() => {
+    map && map.setLayoutProperty('orthophoto', 'visibility', state.showOrtoPhoto ? 'visible' : 'none');
+  }, [state.showOrtoPhoto, map]); // Run when map becomes available or showOrtoPhoto is changed
 
   return (
     <>
