@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import './App.css';
-import { vms } from 'viamapstrap';
+
+// VIAMAP REQUIRED IMPORTS AND DESCLARATIONS
+import {vms} from 'viamap-viamapstrap-mbox';
+declare var mapboxgl: any;
 
 // STATE EXAMPLE
 type State = {
@@ -70,7 +73,7 @@ const OtherComponent = () => {
 
 const MapComponent = () => {
   const { state, dispatch } = useContext(Context);
-  const [ map, setMap ] = useState(null);
+  const [ map, setMap ] = useState<any>(null);
   const mapContainer = useRef(null);
 
   // ==============================================================
@@ -92,8 +95,10 @@ const MapComponent = () => {
     };
     vms.initmap(props)
       .then((map: any) => {
+        vms.load().then(function () {
+
         setMap(map);
-        map.addControl(new (vms.mapboxgl()).NavigationControl({ visualizePitch: true }), 'top-left');
+        map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }, 'top-left'));
         map.setLayoutProperty('orthophoto', 'visibility', 'none');
         map.on('click', (e: any) => { dispatch({ actionType: ActionType.Click }); })
 
@@ -135,7 +140,7 @@ const MapComponent = () => {
             'circle-radius': 10,
           }
         });
-
+      });
       });
       /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []); // Run only once
@@ -144,9 +149,7 @@ const MapComponent = () => {
   // EXAMPLE HANDLING OF EVENT/STATE CHANGE
   // ==============================================================
   useEffect(() => {
-    if (map) {
-      map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
-    }
+    map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
   }, [state.color, map]); // Run when map becomes available or color is changed
 
   return (
