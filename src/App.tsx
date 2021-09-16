@@ -98,7 +98,7 @@ const MapComponent = () => {
         vms.load().then(function () {
 
         setMap(map);
-        map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }, 'top-left'));
+        map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
         map.setLayoutProperty('orthophoto', 'visibility', 'none');
         map.on('click', (e: any) => { dispatch({ actionType: ActionType.Click }); })
 
