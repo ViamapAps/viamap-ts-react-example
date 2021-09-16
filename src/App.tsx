@@ -83,18 +83,11 @@ const Map = () => {
         map.setLayoutProperty('orthophoto', 'visibility', 'none');
         map.on('click', (e: any) => { dispatch({ actionType: ActionType.Click }); })
 
-
         let myData = {
           "type": "FeatureCollection",
           "features": [
             {
               "type": "Feature",
-              // "properties": {
-              //   "placering": "Kochsgade/Døckerslundsvej",
-              //   "id": "1",
-              //   "link": "https://www.viamap.net",
-              //   "selected": true
-              // },
               "geometry": {
                 "type": "Point",
                 "coordinates": [
@@ -105,11 +98,6 @@ const Map = () => {
             },
             {
               "type": "Feature",
-              // "properties": {
-              //   "placering": "Niels Bohrs Alle/Campusvej",
-              //   "id": "2",
-              //   "link": "https://www.viamap.net"
-              // },
               "geometry": {
                 "type": "Point",
                 "coordinates": [
