@@ -54,12 +54,12 @@ Contact Viamap (support@viamap.net) if you have questions or suggestions.
 
 ### 1. Import bootstrap code
 
-#### ```javascript
+```javascript
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 import { vms } from 'viamap-viamapstrap-mbox';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
-#### ```
+```
 
 ### 2. Specify your Viamap token
 
@@ -67,7 +67,7 @@ declare var mapboxgl: any;
 
 ### 3. Initialize the Map [Do this only once]
 
-#### ```javascript
+```javascript
     let props = {
       // Reference to the container html div
       container: mapContainer.current,
@@ -83,13 +83,13 @@ declare var mapboxgl: any;
     vms.initmap(props)
       .then((map: any) => {
         vms.load().then(function () {
-          // Save map object in state
-          setMap(map);
-
           // Create some controls
           map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
           // ADD MORE CONTROLS HERE
+
+          // TODO: SAVE THE map variable in the state. You will need it later
+
         });
       });
-#### ```
+```
