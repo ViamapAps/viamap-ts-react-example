@@ -68,11 +68,15 @@ declare var mapboxgl: any;
 
 Import needed React components
 
-`import { useRef, useState } from 'react';`
+```javascript
+import { useRef, useState } from 'react';
+```
 
 ### 2. Specify your Viamap token
 
-`let token = "YOUR VIAMAP TOKEN";`
+```javascript
+let token = "YOUR VIAMAP TOKEN";
+```
 
 ### 3. Declare some React States to Store key information in. Example:
 
