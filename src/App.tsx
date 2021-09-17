@@ -82,9 +82,11 @@ const MapComponent = () => {
   useEffect(() => {
     let customer = "YOUR CUSTOMER PREFIX";
     let token = "YOUR TOKEN";
+
     let props = {
-      server_uri: "https://" + customer + ".controlpanel.viamap.net/",
+      server_uri: "https://viamap.controlpanel.viamap.net/",
       container: mapContainer.current,
+      // token: token,
       zoom: 11,
       pitch: 0,
       bearing: 0,
