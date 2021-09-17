@@ -77,11 +77,11 @@ const MapComponent = () => {
   const { state, dispatch } = useContext(Context);
   const [map, setMap] = useState<any>(null);
   const mapContainer = useRef(null);
-
+ 
   // MAP INITIALIZATION
   useEffect(() => {
-    let customer = "charlietango_trial";
-    let token = "eyJkcGZ4IjogImNoYXJsaWV0YW5nb190cmlhbCIsICJyZWYiOiAiMjEwOTA5IiwgInBhciI6ICIiLCAiZXhwIjogMTYzNTgxMTE5OSwgInByaXZzIjogInIxWjByMEYwazZCdFdxUWNPVXlrQi95NlNVcEp2MlFiZ3lYZXRxNEhZNFhPLzNZclcwK0s5dz09In0.gqV466WO3GqdhsHU0PSzFV4xpxOMJMd9MHUxJ+lh7riZvREht/dG1PN0tlx+rzcDaqZRK5CD4yCOiUe393XOYg";
+    let customer = "YOUR CUSTOMER PREFIX";
+    let token = "YOUR TOKEN";
     let props = {
       server_uri: "https://" + customer + ".controlpanel.viamap.net/",
       container: mapContainer.current,
