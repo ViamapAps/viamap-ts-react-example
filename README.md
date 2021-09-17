@@ -74,6 +74,11 @@ import { useRef, useState } from 'react';
 
 ### 2. Specify your Viamap token
 
+Enter the viamap token you have received betwwne the quotes. 
+It is a long encoded string.
+Example: 
+eyJkcGZ4IjogImNoYXJsaWV0YW5nb190cmlhbCIsICJyZWYiOiAiMjEwOTA5IiwgInBhciI6ICIiLCAiZXhwIjogMTYzNTgxMTE5OSwgInByaXZzIjogInIxWjByMEYwazZCdFdxUWNPVXlrQi95NlNVcEp2
+
 ```javascript
 let token = "YOUR VIAMAP TOKEN";
 ```
