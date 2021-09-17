@@ -18,26 +18,26 @@ Everything is in the file App.tsx for ease of reading.
 
 ## To get started
 
-1. Clone the repository 
+### 1. Clone the repository 
 
-### `git clone https://github.com/ViamapAps/viamap-ts-react-example.git`
+#### `git clone https://github.com/ViamapAps/viamap-ts-react-example.git`
 
-2. Start your favorite editor
+### 2. Start your favorite editor
 
 In _App.tsx_ edit line 
-###    `let token = "YOUR VIAMAP TOKEN";`
+####    `let token = "YOUR VIAMAP TOKEN";`
 Enter your viamap token
 
-3.  Start the Application
+### 3.  Start the Application
 
 In the project directory, you can run:
 
-### `npm start`
+#### `npm start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-4.  This will run the application in your default browser
+### 4.  This will run the application in your default browser
 
 ## If you have questions
 
