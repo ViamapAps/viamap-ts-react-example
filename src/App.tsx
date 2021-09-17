@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer, useRef, useState } from 'reac
 import './App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
-import { vms } from 'viamap-viamapstrap-mbox';
+import { vms }  from 'viamap-viamapstrap-mbox';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
@@ -22,6 +22,7 @@ export const Context = React.createContext<{
   dispatch: () => undefined,
 });
 
+// Actions for Simple Reducer
 enum ActionType { Recolor, DotClick, OrtoPhoto };
 type Action = {
   actionType: ActionType;
@@ -50,7 +51,7 @@ const App = () => {
     <>
       <div className="App">
         <Context.Provider value={{ state, dispatch }}>
-          <OtherComponent />
+          <ControlPanel />
           <MapComponent />
         </Context.Provider>
       </div>
@@ -59,7 +60,7 @@ const App = () => {
 }
 
 // COMPONENT WITH ACTIONS CONTROLING THE MAP
-const OtherComponent = () => {
+const ControlPanel = () => {
   const { state, dispatch } = useContext(Context);
   return (
     <>
@@ -67,7 +68,7 @@ const OtherComponent = () => {
       <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
       {' '}
       <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
-      <div>Dots clicked {state.dotClicks} times</div>
+      <div style={{marginTop:"10px", fontStyle:'italic'}}>Dots clicked {state.dotClicks} times</div>
     </>
   );
 }
@@ -80,19 +81,19 @@ const MapComponent = () => {
  
   // MAP INITIALIZATION
   useEffect(() => {
-    let customer = "YOUR CUSTOMER PREFIX";
-    let token = "YOUR TOKEN";
+    let token = "YOUR VIAMAP TOKEN";
 
     let props = {
-      server_uri: "https://viamap.controlpanel.viamap.net/",
+      // Reference to the container html div
       container: mapContainer.current,
-      // token: token,
+      // Viamap Token
+      token: token,
+      // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
       zoom: 11,
       pitch: 0,
       bearing: 0,
       center: [10.4153,
-        55.401046],
-      style: "https://" + customer + ".tiles.viamap.net/v1/style.json?token=" + token
+        55.401046]
     };
     vms.initmap(props)
       .then((map: any) => {
@@ -100,11 +101,10 @@ const MapComponent = () => {
           // Save map object in state
           setMap(map);
 
-          // Create the controls
+          // Create some controls
           map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
-          map.setLayoutProperty('orthophoto', 'visibility', 'none');
 
-          // Add point layer
+          // Add example point layer
           let myData = {
             "type": "FeatureCollection",
             "features": [
@@ -158,7 +158,7 @@ const MapComponent = () => {
       });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []); // Run only once
-
+ 
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
     map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
@@ -172,9 +172,9 @@ const MapComponent = () => {
   // Map render function
   return (
     <>
-      <h1>The Map</h1>
+      <h2>The Map</h2>
       <div>
-        <div ref={mapContainer} style={{ width: "100%", height: "400px" }} className="map-container" />
+        <div ref={mapContainer} style={{ width: "100%", height: "500px" }} className="map-container" />
       </div>
     </>
   );
