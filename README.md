@@ -52,7 +52,12 @@ Contact Viamap (support@viamap.net) if you have questions or suggestions.
 
 ## General Instructions when Integrating Viamap on a web site
 
-### 1. Import bootstrap code
+Below are some code chunks that as a minimum must be added to the application.
+They are mentioned in the order that we likely be in the source file.
+
+### 1. Imports
+
+Import viamap bootstrap code
 
 ```javascript
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
@@ -61,35 +66,52 @@ declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 ```
 
+Import needed React components
+
+`import { useRef, useState } from 'react';`
+
 ### 2. Specify your Viamap token
 
-#### `let token = "YOUR VIAMAP TOKEN";`
+`let token = "YOUR VIAMAP TOKEN";`
 
-### 3. Initialize the Map [Do this only once]
+### 3. Declare some React States to Store key information in. Example:
 
 ```javascript
-    let props = {
-      // Reference to the container html div
-      container: mapContainer.current,
-      // Viamap Token
-      token: token,
-      // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
-      zoom: 11,
-      pitch: 0,
-      bearing: 0,
-      center: [10.4153,
-        55.401046]
-    };
-    vms.initmap(props)
-      .then((map: any) => {
-        vms.load().then(function () {
-          // Create some controls
-          map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
+const [map, setMap] = useState<any>(null);
+const mapContainer = useRef(null);
+```
 
-          // ADD MORE CONTROLS HERE
+### 4. Initialize the Map [Do this only once]
 
-          // TODO: SAVE THE map variable in the state. You will need it later
+```javascript
+let props = {
+    // Reference to the container html div
+    container: mapContainer.current,
+    // Viamap Token
+    token: token,
+    // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
+    zoom: 11,
+    pitch: 0,
+    bearing: 0,
+    center: [10.4153,
+    55.401046]
+};
+vms.initmap(props)
+    .then((map: any) => {
+    vms.load().then(function () {
+        // Create some controls
+        map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
-        });
-      });
+        // ADD MORE CONTROLS HERE
+
+        // SAVE THE map variable in the state. You will need it later
+        setMap(map);
+    });
+});
+```
+
+### 5. Declare a <div> which will be the container for the map
+
+```javascript
+<div ref={mapContainer} style={{ width: "100%", height: "500px" }} className="map-container" />
 ```
