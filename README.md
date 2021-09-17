@@ -114,7 +114,7 @@ vms.initmap(props)
 });
 ```
 
-### 5. Declare a <div> which will be the container for the map
+### 5. Declare a \<div\> which will be the container for the map
 
 ```javascript
 <div ref={mapContainer} style={{ width: "100%", height: "500px" }} className="map-container" />
