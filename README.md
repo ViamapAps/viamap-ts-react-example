@@ -53,7 +53,7 @@ Contact Viamap (support@viamap.net) if you have questions or suggestions.
 ## General Instructions when Integrating Viamap on a web site
 
 Below are some code chunks that as a minimum must be added to the application.
-They are mentioned in the order that we likely be in the source file.
+They are mentioned in the order that they will likely be in the source file.
 
 ### 1. Imports
 
@@ -108,7 +108,7 @@ vms.initmap(props)
 
         // ADD MORE CONTROLS HERE
 
-        // SAVE THE map variable in the state. You will need it later
+        // SAVE the map variable in the state. We will need it later
         setMap(map);
     });
 });
