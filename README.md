@@ -4,15 +4,16 @@ This project is an example of how Viamap vector maps can be integrated in a Reac
 
 The application is not usefull in itself but illustrates:
 
-- import of required npm module
+- import of required npm viamap modules
 - specifying your Viamap token and initializing the map
 - draving some points on the map
+- how to integrate with React components
 - how to get events to the map
 - how to get events from the map to other parts of the application
 - how to show the orthophoto
 - simple event handlers
 
-Focus has been on a compact code. 
+Focus has been on compact code examples
 Everything is in the file App.tsx for ease of reading.
 
 ## To get started
@@ -40,7 +41,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ## If you have questions
 
-Contact Viamap (info@viamap.net) if you have questions or need for clarifications
-
+Contact Viamap (info@viamap.net) if you have questions or suggestions.
 
 
