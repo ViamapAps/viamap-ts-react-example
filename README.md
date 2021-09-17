@@ -2,12 +2,12 @@
 
 This project is an example of how Viamap vector maps can be integrated in a React Typescript Application.
 
-The application is not usefull in itself but illustrates:
+The application is not useful in itself but illustrates:
 
 - import of required npm viamap modules
 - specifying your Viamap token and initializing the map
 - using native Mapboxgl functionality to add map features
-- draving some points on the map
+- drawing some points on the map
 - how to integrate with React components
 - how to get events to the map
 - how to get events from the map to other parts of the application
