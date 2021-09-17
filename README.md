@@ -50,3 +50,46 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 Contact Viamap (support@viamap.net) if you have questions or suggestions.
 
 
+## General Instructions when Integrating Viamap on a web site
+
+### 1. Import bootstrap code
+
+#### ```javascript
+// VIAMAP REQUIRED IMPORTS AND DECLARATIONS
+import { vms } from 'viamap-viamapstrap-mbox';
+declare var mapboxgl: any;
+// END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
+#### ```
+
+### 2. Specify your Viamap token
+
+#### `let token = "YOUR VIAMAP TOKEN";`
+
+### 3. Initialize the Map [Do this only once]
+
+#### ```javascript
+    let props = {
+      // Reference to the container html div
+      container: mapContainer.current,
+      // Viamap Token
+      token: token,
+      // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
+      zoom: 11,
+      pitch: 0,
+      bearing: 0,
+      center: [10.4153,
+        55.401046]
+    };
+    vms.initmap(props)
+      .then((map: any) => {
+        vms.load().then(function () {
+          // Save map object in state
+          setMap(map);
+
+          // Create some controls
+          map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
+
+          // ADD MORE CONTROLS HERE
+        });
+      });
+#### ```
