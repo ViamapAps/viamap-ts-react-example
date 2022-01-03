@@ -2,9 +2,12 @@ import React, { useContext, useEffect, useReducer, useRef, useState } from 'reac
 import './App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
-import { vms }  from 'viamap-viamapstrap-mbox';
+import { vms } from 'viamap-viamapstrap-mbox';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
+
+// VIAMAP TOKEN
+let token = "YOUR VIAMAP TOKEN";
 
 // STATE EXAMPLE
 type State = {
@@ -52,7 +55,13 @@ const App = () => {
       <div className="App">
         <Context.Provider value={{ state, dispatch }}>
           <ControlPanel />
-          <MapComponent />
+          {
+            token === "YOUR VIAMAP TOKEN" ? (
+              <h2 style={{border:"3px solid orange"}}>Please first enter your Viamap token in the file App.tsx!</h2>
+            ) : (
+              <MapComponent />
+            )
+          }
         </Context.Provider>
       </div>
     </>
@@ -68,7 +77,7 @@ const ControlPanel = () => {
       <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
       {' '}
       <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
-      <div style={{marginTop:"10px", fontStyle:'italic'}}>Dots clicked {state.dotClicks} times</div>
+      <div style={{ marginTop: "10px", fontStyle: 'italic' }}>Dots clicked {state.dotClicks} times</div>
     </>
   );
 }
@@ -78,11 +87,9 @@ const MapComponent = () => {
   const { state, dispatch } = useContext(Context);
   const [map, setMap] = useState<any>(null);
   const mapContainer = useRef(null);
- 
+
   // MAP INITIALIZATION
   useEffect(() => {
-    let token = "YOUR VIAMAP TOKEN";
-
     let props = {
       // Reference to the container html div
       container: mapContainer.current,
@@ -145,8 +152,8 @@ const MapComponent = () => {
           });
 
           // Example Point event handlers
-          map.on('click', 'exampledatalayerdot', () => { 
-            dispatch({ actionType: ActionType.DotClick }); 
+          map.on('click', 'exampledatalayerdot', () => {
+            dispatch({ actionType: ActionType.DotClick });
           });
           map.on('mouseenter', 'exampledatalayerdot', () => {
             map.getCanvas().style.cursor = 'pointer'
@@ -158,7 +165,7 @@ const MapComponent = () => {
       });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, []); // Run only once
- 
+
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
     map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
