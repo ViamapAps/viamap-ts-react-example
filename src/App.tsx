@@ -90,6 +90,8 @@ const MapComponent = () => {
 
   // MAP INITIALIZATION
   useEffect(() => {
+    let token = "YOUR VIAMAP TOKEN";
+
     let props = {
       // Reference to the container html div
       container: mapContainer.current,
