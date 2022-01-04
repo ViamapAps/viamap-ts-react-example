@@ -1,27 +1,27 @@
-import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import './css/App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 import { vms } from 'viamap-viamapstrap-mbox';
-import { asyncDisplayPOIforBounds } from './managers/POISelectorInterface';
+import { asyncDisplayPOIforBounds } from './managers/POIInterface';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
 // VIAMAP TOKEN AND USERNAME
-export const userName = "YOUR VIAMAP USERNAME";
-export let token = "YOUR VIAMAP TOKEN";
+export let userName = "test";
+export let token = "eyJkcGZ4IjogInRlc3QiLCAicmVmIjogIjIiLCAicGFyIjogIiIsICJwcml2cyI6ICJXMCtLOXc9PSJ9.tyXKETkVeU+eYozC4cFmcIrSc65yA5C/1+5S2J9JLJch36h9eZdznRnHB5QS0wacBybNmiJR/b8Fyejd5ew9fw";
 
 // INITIAL POI SETTINGS
-const showPoiSelector = true;
-let poiTypesList: string[] = [];
+const showPoiButtons = true;
 
 // STATE EXAMPLE
 type State = {
   color: string;
   dotClicks: number;
   showOrtoPhoto: boolean;
+  map: any;
 }
-let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false };
+let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false, map: null };
 
 export const Context = React.createContext<{
   state: State;
@@ -32,7 +32,7 @@ export const Context = React.createContext<{
 });
 
 // Actions for Simple Reducer
-enum ActionType { Recolor, DotClick, OrtoPhoto };
+enum ActionType { Recolor, DotClick, OrtoPhoto, SetMap };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
@@ -47,6 +47,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, showOrtoPhoto: action.payLoad };
     case ActionType.DotClick:
       return { ...state, dotClicks: state.dotClicks + 1 }
+    case ActionType.SetMap:
+      return { ...state, map: action.payLoad}
     default:
       return state;
   }
@@ -77,12 +79,41 @@ const App = () => {
 // COMPONENT WITH ACTIONS CONTROLING THE MAP
 const ControlPanel = () => {
   const { state, dispatch } = useContext(Context);
+  const activeMoveEndPoiFunction = useRef<Function>();
+
+  const callbackAsyncDisplayPoi = useCallback((poiTypesList: string[]) => {
+    asyncDisplayPOIforBounds(state.map, userName, token, "poi", poiTypesList);
+  }, [state.map]);
+
+  const displayPois = (poiTypesList: string[]) => {
+    // Clear active moveend event listener from map
+    activeMoveEndPoiFunction && state.map.off('moveend', activeMoveEndPoiFunction.current);
+
+    // Add new active moveend event listener to map and local state
+    const poiMoveEventListener = () => callbackAsyncDisplayPoi(poiTypesList);
+    state.map.on('moveend', poiMoveEventListener);
+    activeMoveEndPoiFunction.current = poiMoveEventListener;
+
+    // Display the new pois on the map
+    asyncDisplayPOIforBounds(state.map, userName, token, "poi", poiTypesList)
+
+    // Update the global mapstate with the updated map
+    dispatch({ actionType: ActionType.SetMap, payLoad: state.map });
+  }
+
   return (
     <>
       <h1>Viamap React Example</h1>
       <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
       {' '}
       <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
+      {showPoiButtons ? (
+        <>
+          <button onClick={(e) => displayPois(['train', 'strain', 'lightrail'])}>Show all trains</button>
+          <button onClick={(e) => displayPois(['supermarket'])}>Show supermarket</button>
+          <button onClick={(e) => displayPois([])}>Hide all pois</button>
+        </>
+      ) : null}
       <div style={{ marginTop: "10px", fontStyle: 'italic' }}>Dots clicked {state.dotClicks} times</div>
     </>
   );
@@ -91,7 +122,6 @@ const ControlPanel = () => {
 // MAP COMPONENT
 const MapComponent = () => {
   const { state, dispatch } = useContext(Context);
-  const [map, setMap] = useState<any>(null);
   const mapContainer = useRef(null);
 
   // MAP INITIALIZATION
@@ -102,17 +132,17 @@ const MapComponent = () => {
       // Viamap Token
       token: token,
       // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
-      zoom: 11,
+      zoom: 14,
       pitch: 0,
       bearing: 0,
-      center: [10.4153,
-        55.401046]
+      center: [10.2086,
+        56.1522]
     };
     vms.initmap(props)
       .then((map: any) => {
         vms.load().then(function () {
           // Save map object in state
-          setMap(map);
+          dispatch({ actionType: ActionType.SetMap, payLoad: map });
 
           // Create some controls
           map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
@@ -167,11 +197,6 @@ const MapComponent = () => {
           map.on('mouseleave', 'exampledatalayerdot', () => {
             map.getCanvas().style.cursor = ''
           });
-          map.on(
-            'moveend',
-            () => {
-              asyncDisplayPOIforBounds(map, userName, token, "poi", poiTypesList);
-            });
         });
       });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -179,74 +204,20 @@ const MapComponent = () => {
 
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
-    map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
-  }, [state.color, map]); // Run when map becomes available or color is changed
+    state.map && state.map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
+  }, [state.color, state.map]); // Run when map becomes available or color is changed
 
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
-    map && map.setLayoutProperty('orthophoto', 'visibility', state.showOrtoPhoto ? 'visible' : 'none');
-  }, [state.showOrtoPhoto, map]); // Run when map becomes available or showOrtoPhoto is changed
+    state.map && state.map.setLayoutProperty('orthophoto', 'visibility', state.showOrtoPhoto ? 'visible' : 'none');
+  }, [state.showOrtoPhoto, state.map]); // Run when map becomes available or showOrtoPhoto is changed
 
-  const POISelector = () => {
-    return (
-      <div className="poimenu">
-        <div id="metro" onClick={(e) => poiButtonClicked(e, map)} title="Metro" data-filter="metro"
-          className="poi-button viamap-sprite viamap-sprite-metro"></div>
-        <div id="anytrain" onClick={(e) => poiButtonClicked(e, map)} title="Alle tog" data-filter="anytrain"
-          className="poi-button viamap-sprite viamap-sprite-tog"></div>
-        <div id="stop" onClick={(e) => poiButtonClicked(e, map)} title="Bus" data-filter="stop"
-          className="poi-button viamap-sprite viamap-sprite-bus"></div>
-        <div id="supermarket" onClick={(e) => poiButtonClicked(e, map)} title="Indkøb" data-filter="supermarket"
-          className="poi-button viamap-sprite viamap-sprite-indkob"></div>
-        <div id="junction" onClick={(e) => poiButtonClicked(e, map)} title="Motorvej" data-filter="junction"
-          className="poi-button viamap-sprite viamap-sprite-motorvej"></div>
-      </div>
-    );
-
-    function poiButtonClicked(e: any, map: any) {
-      let filter: any = e.currentTarget.dataset.filter;
-
-      if (document.getElementById(filter) && document.getElementById(filter)?.classList.contains("poi-button-selected")) {
-        // filter already active - switch the filter off
-        filter = "";
-      }
-      // clear selections
-      let buttons = document.getElementsByClassName("poi-button");
-      document.getElementsByClassName("poi-button");
-      var i;
-      for (i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove("poi-button-selected");
-      };
-      // mark selected
-      document.getElementById(filter) && document.getElementById(filter)?.classList.add("poi-button-selected");
-
-      switch (filter) {
-        case 'health':
-          poiTypesList = ['doctor', 'hospital', 'pharmacy'];
-          break;
-        case 'shopping':
-          poiTypesList = ['supermarket'];
-          break;
-        case 'anytrain':
-          poiTypesList = ['train', 'strain', 'letbane'];
-          break;
-        case '':
-          poiTypesList = [];
-          break;
-        default:
-          poiTypesList = [filter];
-      }
-      asyncDisplayPOIforBounds(map, userName, token, "poi", poiTypesList);
-    }
-  };
-  
   // Map render function
   return (
     <>
       <h2>The Map</h2>
       <div>
         <div ref={mapContainer} style={{ width: "100%", height: "500px" }} className="map-container" />
-        {showPoiSelector ? <POISelector /> : null}
       </div>
     </>
   );

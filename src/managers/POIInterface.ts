@@ -101,9 +101,9 @@ const POITYPES: any = {
         icon: 'roadtrain',
         transtype: 'car'
     },
-    'letbane': {
+    'lightrail': {
         name: 'Letbane',
-        icon: 'tog',
+        icon: 'lightrail',
         transtype: 'car'
     }
 };
