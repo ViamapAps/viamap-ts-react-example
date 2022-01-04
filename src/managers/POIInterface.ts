@@ -107,6 +107,7 @@ const POITYPES: any = {
         transtype: 'car'
     }
 };
+export const maxPoiZoomLevel = 12;
 
 const c_groen = "#3d8f6e";
 const c_lysgroen = "#56c07c";
@@ -143,7 +144,7 @@ export async function asyncDisplayPOIforBounds(map: any, customer: string, token
         return;
     }
 
-    if (map.getZoom() < 10) {
+    if (map.getZoom() < maxPoiZoomLevel) {
         if (map.getLayer(layerId)) {
             map.removeLayer(layerId);
         };

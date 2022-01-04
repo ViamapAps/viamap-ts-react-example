@@ -3,7 +3,7 @@ import './css/App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 import { vms } from 'viamap-viamapstrap-mbox';
-import { asyncDisplayPOIforBounds } from './managers/POIInterface';
+import { asyncDisplayPOIforBounds, maxPoiZoomLevel } from './managers/POIInterface';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
@@ -14,14 +14,18 @@ export let token = "YOUR VIAMAP TOKEN";
 // INITIAL POI SETTINGS
 const showPoiButtons = true;
 
+// INITIAL GENERAL SETTINGS
+const initialZoomLevel = 14;
+
 // STATE EXAMPLE
 type State = {
   color: string;
   dotClicks: number;
   showOrtoPhoto: boolean;
   map: any;
+  currentZoomLevel: number;
 }
-let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false, map: null };
+let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false, map: null, currentZoomLevel: initialZoomLevel };
 
 export const Context = React.createContext<{
   state: State;
@@ -32,7 +36,7 @@ export const Context = React.createContext<{
 });
 
 // Actions for Simple Reducer
-enum ActionType { Recolor, DotClick, OrtoPhoto, SetMap };
+enum ActionType { Recolor, DotClick, OrtoPhoto, SetMap, SetCurrentZoomLevel };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
@@ -49,6 +53,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, dotClicks: state.dotClicks + 1 }
     case ActionType.SetMap:
       return { ...state, map: action.payLoad}
+      case ActionType.SetCurrentZoomLevel:
+      return { ...state, currentZoomLevel: action.payLoad}
     default:
       return state;
   }
@@ -107,13 +113,13 @@ const ControlPanel = () => {
       <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
       {' '}
       <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
-      {showPoiButtons ? (
+      {showPoiButtons ? !(state.currentZoomLevel < maxPoiZoomLevel) ? (
         <>
           <button onClick={(e) => displayPois(['train', 'strain', 'lightrail'])}>Show all trains</button>
           <button onClick={(e) => displayPois(['supermarket'])}>Show supermarket</button>
-          <button onClick={(e) => displayPois([])}>Hide all pois</button>
+          <button onClick={(e) => displayPois([])}>Hide all POIs</button>
         </>
-      ) : null}
+      ) : <button disabled={true}>Zoom further in to enable POIs</button> : null}
       <div style={{ marginTop: "10px", fontStyle: 'italic' }}>Dots clicked {state.dotClicks} times</div>
     </>
   );
@@ -132,7 +138,7 @@ const MapComponent = () => {
       // Viamap Token
       token: token,
       // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
-      zoom: 14,
+      zoom: initialZoomLevel,
       pitch: 0,
       bearing: 0,
       center: [10.2086,
@@ -156,8 +162,8 @@ const MapComponent = () => {
                 "geometry": {
                   "type": "Point",
                   "coordinates": [
-                    10.4103,
-                    55.411046
+                    10.2086,
+                    56.1522
                   ]
                 }
               },
@@ -166,8 +172,8 @@ const MapComponent = () => {
                 "geometry": {
                   "type": "Point",
                   "coordinates": [
-                    10.428477,
-                    55.375788
+                    10.2076,
+                    56.1512
                   ]
                 }
               }
@@ -196,6 +202,9 @@ const MapComponent = () => {
           });
           map.on('mouseleave', 'exampledatalayerdot', () => {
             map.getCanvas().style.cursor = ''
+          });
+          map.on('zoomend', () => {
+            dispatch({ actionType: ActionType.SetCurrentZoomLevel, payLoad: map.getZoom() }); console.log(map.getZoom());
           });
         });
       });
