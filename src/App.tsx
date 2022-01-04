@@ -8,8 +8,8 @@ declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
 // VIAMAP TOKEN AND USERNAME
-export let userName = "test";
-export let token = "eyJkcGZ4IjogInRlc3QiLCAicmVmIjogIjIiLCAicGFyIjogIiIsICJwcml2cyI6ICJXMCtLOXc9PSJ9.tyXKETkVeU+eYozC4cFmcIrSc65yA5C/1+5S2J9JLJch36h9eZdznRnHB5QS0wacBybNmiJR/b8Fyejd5ew9fw";
+export let userName = "YOUR VIAMAP USERNAME";
+export let token = "YOUR VIAMAP TOKEN";
 
 // INITIAL POI SETTINGS
 const showPoiButtons = true;
