@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import './css/App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
