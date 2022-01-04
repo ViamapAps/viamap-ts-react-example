@@ -1,118 +1,34 @@
 declare var mapboxgl: any;
 
 const POITYPES: any = {
-    'daycare': {
-        name: 'Daginstitution',
-        icon: 'daycare',
-        transtype: 'foot'
-    },
-    'doctor': {
-        name: 'Læge',
-        icon: 'doctor',
-        transtype: 'foot'
-    },
-    'hospital': {
-        name: 'Hospital',
-        icon: 'hospital',
-        transtype: 'car'
-    },
-    'junction': {
-        name: 'Motorvej',
-        icon: 'junction',
-        transtype: 'car'
-    },
     'metro': {
         name: 'Metro',
         icon: 'metro',
-        transtype: 'foot'
-    },
-    'school': {
-        name: 'Skole',
-        icon: 'school',
-        transtype: 'foot'
-    },
-    'stop': {
-        name: 'Stoppested',
-        icon: 'stop',
-        transtype: 'foot'
     },
     'strain': {
         name: 'S-Tog',
         icon: 'strain',
-        transtype: 'foot'
     },
     'supermarket': {
         name: 'Supermarked',
         icon: 'supermarket',
-        transtype: 'foot'
     },
     'train': {
         name: 'Regionaltog',
         icon: 'train',
-        transtype: 'foot'
-    },
-    'library': {
-        name: 'Bibliotek',
-        icon: 'library',
-        transtype: 'foot'
-    },
-    'pharmacy': {
-        name: 'Apotek',
-        icon: 'pharmacy',
-        transtype: 'auto'
-    },
-    'coast': {
-        name: 'Kyst',
-        icon: 'coast',
-        transtype: 'foot'
-    },
-    'forest': {
-        name: 'Skov',
-        icon: 'forest',
-        transtype: 'foot'
-    },
-    'lake': {
-        name: 'Sø',
-        icon: 'lake',
-        transtype: 'foot'
-    },
-    'airport': {
-        name: 'Lufthavn',
-        icon: 'airport',
-        transtype: 'car'
-    },
-    'sportshall': {
-        name: 'Idrætshal',
-        icon: 'sportshall',
-        transtype: 'foot'
-    },
-    'publicbath': {
-        name: 'Svømmehal',
-        icon: 'publicbath',
-        transtype: 'foot'
-    },
-    'soccerfield': {
-        name: 'Fodboldbane',
-        icon: 'soccerfield',
-        transtype: 'foot'
-    },
-    'roadtrain': {
-        name: 'Modulvogntog',
-        icon: 'roadtrain',
-        transtype: 'car'
     },
     'lightrail': {
         name: 'Letbane',
         icon: 'lightrail',
-        transtype: 'car'
     }
 };
 export const maxPoiZoomLevel = 12;
 
-const c_groen = "#3d8f6e";
-const c_lysgroen = "#56c07c";
-
 export async function asyncDisplayPOIforBounds(map: any, customer: string, token: string, poiLayer: string, poiTypesList: string[]) {
+
+    /**
+     * Formats a string by replacing variable keys within brackets with their respective value
+     */
     function formatString(input: string, placeholders: { [key: string]: any }) {
         let s = input;
         for (let propertyName in placeholders) {
@@ -125,6 +41,8 @@ export async function asyncDisplayPOIforBounds(map: any, customer: string, token
     }
 
     let bounds = map.getBounds();
+
+    // Create POI service URL parameters with user specific credentials as specified in App.tsx
     let serviceUrl = formatString("https://{customer}.poi.viamap.net/v1/getpoi/?token={token}&", { customer, token });
     let bbox = formatString("{lat},{lng}%20{lat2},{lng2}", { lat: bounds.getSouth(), lng: bounds.getWest(), lat2: bounds.getNorth(), lng2: bounds.getEast() });
 
@@ -204,9 +122,9 @@ export async function asyncDisplayPOIforBounds(map: any, customer: string, token
         });
 
         if (!map.getSource(sourceId)) {
-            map.addSource(sourceId, makeSourceSpec(featuresArray, false));
+            map.addSource(sourceId, makeSourceSpec(featuresArray));
         } else {
-            map.getSource(sourceId).setData(makeSourceSpec(featuresArray, false).data);
+            map.getSource(sourceId).setData(makeSourceSpec(featuresArray).data);
         }
         if (!map.getLayer(layerId)) {
             map.addLayer(makeLayerPoi(layerId, sourceId));
@@ -241,15 +159,14 @@ export async function asyncDisplayPOIforBounds(map: any, customer: string, token
             }
 
             let contents = "";
-            contents += "<div class='viamap-popup-contents-category' style='color:'" + c_groen + "'>" + coordName + "</div>";
-            contents += "<div class='viamap-popup-contents-name' style='color:'" + c_lysgroen + "'>" + poiName + "</div>";
+            contents += "<div class='viamap-popup-contents-category'>" + coordName + "</div>";
+            contents += "<div class='viamap-popup-contents-name'>" + poiName + "</div>";
             // Populate the popup and set its coordinates
             // based on the feature found.
             popup.setLngLat(coordinates).setHTML(contents).addTo(map);
         });
 
         map.on('mouseleave', layerId, () => {
-            // map.getCanvas().style.cursor = '';
             popup.remove();
         });
         return (poiLayer);
@@ -259,30 +176,17 @@ export async function asyncDisplayPOIforBounds(map: any, customer: string, token
     }
 }
 
-function makeSourceSpec(featuresArray: any[], useClustering: boolean) {
-    // tslint:disable
-
-    let clusterParams = useClustering ?
-        {
-            cluster: true,
-            clusterMaxZoom: 16, // Max zoom to cluster points on
-            clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
-        }
-        : {};
+function makeSourceSpec(featuresArray: any[]) {
     return {
         type: "geojson",
         data: {
             "type": "FeatureCollection",
             "features": featuresArray,
         },
-        ...clusterParams
     };
-    // tslint:enable
-
 }
 
 function makeLayerPoi(id: string, source: string) {
-    // tslint:disable
     return {
         id: id,
         type: "symbol",

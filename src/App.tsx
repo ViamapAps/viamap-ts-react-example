@@ -8,8 +8,8 @@ declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
 // VIAMAP TOKEN AND USERNAME
-export let userName = "YOUR VIAMAP USERNAME";
-export let token = "YOUR VIAMAP TOKEN";
+export let userName = "test";
+export let token = "eyJkcGZ4IjogInRlc3QiLCAicmVmIjogIjIiLCAicGFyIjogIiIsICJwcml2cyI6ICJXMCtLOXc9PSJ9.tyXKETkVeU+eYozC4cFmcIrSc65yA5C/1+5S2J9JLJch36h9eZdznRnHB5QS0wacBybNmiJR/b8Fyejd5ew9fw";
 
 // INITIAL POI SETTINGS
 const showPoiButtons = true;
@@ -53,7 +53,7 @@ function reducer(state: State, action: Action): State {
       return { ...state, dotClicks: state.dotClicks + 1 }
     case ActionType.SetMap:
       return { ...state, map: action.payLoad}
-      case ActionType.SetCurrentZoomLevel:
+    case ActionType.SetCurrentZoomLevel:
       return { ...state, currentZoomLevel: action.payLoad}
     default:
       return state;
@@ -110,16 +110,15 @@ const ControlPanel = () => {
   return (
     <>
       <h1>Viamap React Example</h1>
-      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
-      {' '}
-      <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
+      <button className="control-panel-button" onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
+      <button className="control-panel-button" onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
       {showPoiButtons ? !(state.currentZoomLevel < maxPoiZoomLevel) ? (
         <>
-          <button onClick={(e) => displayPois(['train', 'strain', 'lightrail'])}>Show all trains</button>
-          <button onClick={(e) => displayPois(['supermarket'])}>Show supermarket</button>
-          <button onClick={(e) => displayPois([])}>Hide all POIs</button>
+          <button className="control-panel-button" onClick={(e) => displayPois(['train', 'strain', 'lightrail'])}>Show all trains</button>
+          <button className="control-panel-button" onClick={(e) => displayPois(['supermarket'])}>Show supermarket</button>
+          <button className="control-panel-button" onClick={(e) => displayPois([])}>Hide all POIs</button>
         </>
-      ) : <button disabled={true}>Zoom further in to enable POIs</button> : null}
+      ) : <button className="control-panel-button" disabled={true}>Zoom further in to enable POIs</button> : null}
       <div style={{ marginTop: "10px", fontStyle: 'italic' }}>Dots clicked {state.dotClicks} times</div>
     </>
   );
