@@ -12,6 +12,7 @@ The application is not useful in itself but illustrates:
 - how to get events to the map
 - how to get events from the map to other parts of the application
 - how to show the orthophoto
+- how to add points of interest via the Viamap POI service
 - simple event handlers
 
 Focus has been on compact code examples
@@ -25,9 +26,10 @@ Everything is in the file App.tsx for ease of reading.
 
 ### 2. Start your favorite editor
 
-In _App.tsx_ edit line 
+In _App.tsx_ edit lines 
+####    `let userName = "YOUR VIAMAP USERNAME";`
 ####    `let token = "YOUR VIAMAP TOKEN";`
-Enter your viamap token
+Enter your viamap username and token
 
 ### 3.  Install modules
 
