@@ -1,21 +1,31 @@
-import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import './App.css';
+import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
+import './css/App.css';
 
 // VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 import { vms } from 'viamap-viamapstrap-mbox';
+import { asyncDisplayPOIforBounds, maxPoiZoomLevel } from './managers/POIInterface';
 declare var mapboxgl: any;
 // END VIAMAP REQUIRED IMPORTS AND DECLARATIONS
 
-// VIAMAP TOKEN
-let token = "YOUR VIAMAP TOKEN";
+// VIAMAP TOKEN AND USERNAME
+export let userName = "YOUR VIAMAP USERNAME";
+export let token = "YOUR VIAMAP TOKEN";
+
+// INITIAL POI SETTINGS
+const showPoiButtons = true;
+
+// INITIAL GENERAL SETTINGS
+const initialZoomLevel = 14;
 
 // STATE EXAMPLE
 type State = {
   color: string;
   dotClicks: number;
   showOrtoPhoto: boolean;
+  map: any;
+  currentZoomLevel: number;
 }
-let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false };
+let initialState: State = { color: "green", dotClicks: 0, showOrtoPhoto: false, map: null, currentZoomLevel: initialZoomLevel };
 
 export const Context = React.createContext<{
   state: State;
@@ -26,7 +36,7 @@ export const Context = React.createContext<{
 });
 
 // Actions for Simple Reducer
-enum ActionType { Recolor, DotClick, OrtoPhoto };
+enum ActionType { Recolor, DotClick, OrtoPhoto, SetMap, SetCurrentZoomLevel };
 type Action = {
   actionType: ActionType;
   payLoad?: any;
@@ -41,6 +51,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, showOrtoPhoto: action.payLoad };
     case ActionType.DotClick:
       return { ...state, dotClicks: state.dotClicks + 1 }
+    case ActionType.SetMap:
+      return { ...state, map: action.payLoad}
+    case ActionType.SetCurrentZoomLevel:
+      return { ...state, currentZoomLevel: action.payLoad}
     default:
       return state;
   }
@@ -56,8 +70,8 @@ const App = () => {
         <Context.Provider value={{ state, dispatch }}>
           <ControlPanel />
           {
-            token === "YOUR VIAMAP TOKEN" ? (
-              <h2 style={{border:"3px solid orange"}}>Please first enter your Viamap token in the file App.tsx!</h2>
+            token === "YOUR VIAMAP TOKEN" || userName === "YOUR VIAMAP USERNAME" ? (
+              <h2 style={{border:"3px solid orange"}}>Please first enter your Viamap username and token in the file App.tsx!</h2>
             ) : (
               <MapComponent />
             )
@@ -71,12 +85,40 @@ const App = () => {
 // COMPONENT WITH ACTIONS CONTROLING THE MAP
 const ControlPanel = () => {
   const { state, dispatch } = useContext(Context);
+  const activeMoveEndPoiFunction = useRef<Function>();
+
+  const callbackAsyncDisplayPoi = useCallback((poiTypesList: string[]) => {
+    asyncDisplayPOIforBounds(state.map, userName, token, "poi", poiTypesList);
+  }, [state.map]);
+
+  const displayPois = (poiTypesList: string[]) => {
+    // Clear active moveend event listener from map
+    activeMoveEndPoiFunction && state.map.off('moveend', activeMoveEndPoiFunction.current);
+
+    // Add new active moveend event listener to map and local state
+    const poiMoveEventListener = () => callbackAsyncDisplayPoi(poiTypesList);
+    state.map.on('moveend', poiMoveEventListener);
+    activeMoveEndPoiFunction.current = poiMoveEventListener;
+
+    // Display the new pois on the map
+    asyncDisplayPOIforBounds(state.map, userName, token, "poi", poiTypesList)
+
+    // Update the global mapstate with the updated map
+    dispatch({ actionType: ActionType.SetMap, payLoad: state.map });
+  }
+
   return (
     <>
       <h1>Viamap React Example</h1>
-      <button onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
-      {' '}
-      <button onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
+      <button className="control-panel-button" onClick={(e) => dispatch({ actionType: ActionType.Recolor, payLoad: state.color === "orange" ? "green" : "orange" })}>Toggle dot color</button>
+      <button className="control-panel-button" onClick={(e) => dispatch({ actionType: ActionType.OrtoPhoto, payLoad: !state.showOrtoPhoto })}>Toggle satelite photo</button>
+      {showPoiButtons ? !(state.currentZoomLevel < maxPoiZoomLevel) ? (
+        <>
+          <button className="control-panel-button" onClick={(e) => displayPois(['train', 'strain', 'lightrail'])}>Show all trains</button>
+          <button className="control-panel-button" onClick={(e) => displayPois(['supermarket'])}>Show supermarket</button>
+          <button className="control-panel-button" onClick={(e) => displayPois([])}>Hide all POIs</button>
+        </>
+      ) : <button className="control-panel-button" disabled={true}>Zoom further in to enable POIs</button> : null}
       <div style={{ marginTop: "10px", fontStyle: 'italic' }}>Dots clicked {state.dotClicks} times</div>
     </>
   );
@@ -85,30 +127,27 @@ const ControlPanel = () => {
 // MAP COMPONENT
 const MapComponent = () => {
   const { state, dispatch } = useContext(Context);
-  const [map, setMap] = useState<any>(null);
   const mapContainer = useRef(null);
 
   // MAP INITIALIZATION
   useEffect(() => {
-    let token = "YOUR VIAMAP TOKEN";
-
     let props = {
       // Reference to the container html div
       container: mapContainer.current,
       // Viamap Token
       token: token,
       // Map Initial View. For options see https://docs.mapbox.com/mapbox-gl-js/api/map/
-      zoom: 11,
+      zoom: initialZoomLevel,
       pitch: 0,
       bearing: 0,
-      center: [10.4153,
-        55.401046]
+      center: [10.2086,
+        56.1522]
     };
     vms.initmap(props)
       .then((map: any) => {
         vms.load().then(function () {
           // Save map object in state
-          setMap(map);
+          dispatch({ actionType: ActionType.SetMap, payLoad: map });
 
           // Create some controls
           map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
@@ -122,8 +161,8 @@ const MapComponent = () => {
                 "geometry": {
                   "type": "Point",
                   "coordinates": [
-                    10.4103,
-                    55.411046
+                    10.2086,
+                    56.1522
                   ]
                 }
               },
@@ -132,8 +171,8 @@ const MapComponent = () => {
                 "geometry": {
                   "type": "Point",
                   "coordinates": [
-                    10.428477,
-                    55.375788
+                    10.2076,
+                    56.1512
                   ]
                 }
               }
@@ -163,6 +202,9 @@ const MapComponent = () => {
           map.on('mouseleave', 'exampledatalayerdot', () => {
             map.getCanvas().style.cursor = ''
           });
+          map.on('zoomend', () => {
+            dispatch({ actionType: ActionType.SetCurrentZoomLevel, payLoad: map.getZoom() }); console.log(map.getZoom());
+          });
         });
       });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -170,13 +212,13 @@ const MapComponent = () => {
 
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
-    map && map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
-  }, [state.color, map]); // Run when map becomes available or color is changed
+    state.map && state.map.setPaintProperty('exampledatalayerdot', 'circle-color', state.color);
+  }, [state.color, state.map]); // Run when map becomes available or color is changed
 
   // EXAMPLE HANDLING OF EVENT/STATE CHANGES
   useEffect(() => {
-    map && map.setLayoutProperty('orthophoto', 'visibility', state.showOrtoPhoto ? 'visible' : 'none');
-  }, [state.showOrtoPhoto, map]); // Run when map becomes available or showOrtoPhoto is changed
+    state.map && state.map.setLayoutProperty('orthophoto', 'visibility', state.showOrtoPhoto ? 'visible' : 'none');
+  }, [state.showOrtoPhoto, state.map]); // Run when map becomes available or showOrtoPhoto is changed
 
   // Map render function
   return (
