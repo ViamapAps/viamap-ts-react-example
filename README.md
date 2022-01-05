@@ -2,6 +2,15 @@
 
 This project is an example of how Viamap vector maps can be integrated in a React Typescript Application.
 
+The application showcases that:
+
+You can click on the buttons to send events to the map component to change color of the dots or display the ortophoto.
+You can click on the dots on the map which will increment the counter in the top component.
+You can zoom/pan using the mouse. Or change tilt/heading using <right mouse button> or Ctrl+<left mouse button>.
+You can show a grouped set of different POI types by pressing “Show all trains” (shows different types of trains).
+You can show a specific set of POIs by pressing “Show supermarket”.
+You can hide all POIs.
+
 The application is not useful in itself but illustrates:
 
 - import of required npm viamap modules
