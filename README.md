@@ -33,18 +33,18 @@ Everything is in the file App.tsx for ease of reading.
 
 #### `git clone https://github.com/ViamapAps/viamap-ts-react-example.git`
 
-### 2. Start your favorite editor
-
-In _App.tsx_ edit lines 
-####    `let userName = "YOUR VIAMAP USERNAME";`
-####    `let token = "YOUR VIAMAP TOKEN";`
-Enter your viamap username and token
-
-### 3.  Install modules
+### 2.  Install modules
 
 In the project directory:
 
 #### `npm install`
+
+### 3. Start your favorite editor
+
+In _App.tsx_ edit lines 
+#### `let userName = "YOUR VIAMAP USERNAME";`
+#### `let token = "YOUR VIAMAP TOKEN";`
+Enter your viamap username and token
 
 ### 4.  Start the Application
 
@@ -55,6 +55,9 @@ In the project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
+### Troubleshooting
+
+If the application either returns error 520 or a syntax/parsing error, it indicates that the Viamap credentials from step 3 are invalid or ill-formed
 
 ## If you have questions
 
